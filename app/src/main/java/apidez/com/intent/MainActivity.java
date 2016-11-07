@@ -1,9 +1,11 @@
 package apidez.com.intent;
 
+import android.Manifest;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -15,6 +17,10 @@ import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
 import java.util.Calendar;
 
+import permissions.dispatcher.NeedsPermission;
+import permissions.dispatcher.RuntimePermissions;
+
+@RuntimePermissions
 public class MainActivity extends AppCompatActivity {
     private final int EDIT = 0;
 
@@ -25,12 +31,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void openCamera(View view) {
+        MainActivityPermissionsDispatcher.openCameraByPermissionDispatcherWithCheck(this);
+    }
+
+    @NeedsPermission(Manifest.permission.CAMERA)
+    void openCameraByPermissionDispatcher() {
         Intent intent = new Intent();
         intent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
         startActivity(intent);
     }
 
     public void openVideo(View view) {
+        MainActivityPermissionsDispatcher.openVideoByPermissionDispatcherWithCheck(this);
+    }
+
+    @NeedsPermission(Manifest.permission.CAMERA)
+    void openVideoByPermissionDispatcher() {
         Intent intent = new Intent();
         intent.setAction(MediaStore.ACTION_VIDEO_CAPTURE);
         startActivity(intent);
@@ -44,6 +60,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void callPhone(View view) {
+        MainActivityPermissionsDispatcher.callPhoneByPermissionDispatcherWithCheck(this);
+    }
+
+    @NeedsPermission(Manifest.permission.CALL_PHONE)
+    void callPhoneByPermissionDispatcher() {
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_CALL);
         intent.setData(Uri.parse("tel:0947811003"));
@@ -121,5 +142,12 @@ public class MainActivity extends AppCompatActivity {
                 false);
         timePickerDialog.setAccentColor(ContextCompat.getColor(this, R.color.colorPrimary));
         timePickerDialog.show(getFragmentManager(), "Timepickerdialog");
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        // NOTE: delegate the permission handling to generated method
+        MainActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
     }
 }
